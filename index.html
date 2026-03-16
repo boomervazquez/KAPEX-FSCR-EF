@@ -364,6 +364,10 @@
 
 <!-- FOOTER -->
 <div class="footer-section">
+  <div class="disclaimer-box" id="gateOutTermsBox" style="display:none; border-left: 4px solid var(--orange-primary);">
+    <h3>Gate-Out Policy &mdash; How FSC Is Applied</h3>
+    <div id="gateOutTermsText"></div>
+  </div>
   <div class="disclaimer-box">
     <h3>Terms &amp; Disclaimer</h3>
     <p id="disclaimerText"></p>
@@ -382,20 +386,10 @@
   'use strict';
 
   // =========================================================================
-  // CONFIGURATION: Set your JSONBin URL here
+  // CONFIGURATION: JSONBin data source
+  // Bin must have "Private" set to OFF in JSONBin dashboard for public read
   // =========================================================================
-  // OPTION 1: JSONBin.io (replace with your actual bin URL)
-  // const DATA_URL = 'https://api.jsonbin.io/v3/b/YOUR_BIN_ID/latest';
-  //
-  // OPTION 2: Local file (for testing or self-hosted)
-  // const DATA_URL = './fsc-data.json';
-  //
-  // OPTION 3: Any other hosted JSON endpoint
-  // const DATA_URL = 'https://your-domain.com/fsc-data.json';
-  // =========================================================================
-
-  // Default: try local file. Change this to your JSONBin URL when ready.
-  const DATA_URL = 'https://api.jsonbin.io/v3/b/69b866d0b7ec241ddc7461bf';
+  const DATA_URL = 'https://api.jsonbin.io/v3/b/69b866d0b7ec241ddc7461bf/latest';
 
   // How many months of history to show (rolling window)
   const ROLLING_MONTHS = 12;
@@ -453,6 +447,26 @@
 
     // Set disclaimer
     $disclaimer.textContent = config.disclaimer;
+
+    // Set gate-out terms if present
+    if (config.gateOutTerms) {
+      const $gateOutBox = document.getElementById('gateOutTermsBox');
+      const $gateOutText = document.getElementById('gateOutTermsText');
+      const sections = config.gateOutTerms.split(' | ');
+      let termsHtml = '';
+      sections.forEach(function(section) {
+        const colonIdx = section.indexOf(':');
+        if (colonIdx > -1) {
+          const title = section.substring(0, colonIdx).trim();
+          const body = section.substring(colonIdx + 1).trim();
+          termsHtml += '<p style="margin-bottom:10px;"><strong style="color:var(--orange-primary);">' + title + ':</strong> ' + body + '</p>';
+        } else {
+          termsHtml += '<p style="margin-bottom:10px;">' + section + '</p>';
+        }
+      });
+      $gateOutText.innerHTML = termsHtml;
+      $gateOutBox.style.display = 'block';
+    }
 
     // Current = most recent entry
     const current = entries[0];
